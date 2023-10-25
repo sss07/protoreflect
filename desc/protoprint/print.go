@@ -115,6 +115,9 @@ type Printer struct {
 	// comments will be merged into the subsequent leading comments.
 	Compact bool
 
+	// If true, the printed output will eschew any blank lines between fieldsDescriptor.
+	FieldsCompact bool
+
 	// If true, all references to messages, extensions, and enums (such as in
 	// options, field types, and method request and response types) will be
 	// fully-qualified. When left unset, the referenced elements will contain
@@ -898,7 +901,9 @@ func (p *Printer) printMessageBody(md *desc.MessageDescriptor, reg *protoregistr
 		}
 
 		if i > 0 {
-			p.newLine(w)
+			if _, ok := d.(*desc.FieldDescriptor); !ok || !p.FieldsCompact {
+				p.newLine(w)
+			}
 		}
 
 		childPath := append(path, el.elementType, int32(el.elementIndex))
