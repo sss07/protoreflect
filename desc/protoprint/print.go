@@ -115,8 +115,9 @@ type Printer struct {
 	// comments will be merged into the subsequent leading comments.
 	Compact bool
 
-	// If true, the printed output will eschew any blank lines between fieldsDescriptor.
-	FieldsCompact bool
+	// If true, the printed output will eschew any blank lines between FieldDescriptor
+	// and EnumValueDescriptor.
+	InnerCompact bool
 
 	// If true, all references to messages, extensions, and enums (such as in
 	// options, field types, and method request and response types) will be
@@ -901,7 +902,7 @@ func (p *Printer) printMessageBody(md *desc.MessageDescriptor, reg *protoregistr
 		}
 
 		if i > 0 {
-			if _, ok := d.(*desc.FieldDescriptor); !ok || !p.FieldsCompact {
+			if _, ok := d.(*desc.FieldDescriptor); !ok || !p.InnerCompact {
 				p.newLine(w)
 			}
 		}
@@ -1340,7 +1341,9 @@ func (p *Printer) printEnum(ed *desc.EnumDescriptor, reg *protoregistry.Types, w
 			}
 
 			if i > 0 {
-				p.newLine(w)
+				if _, ok := d.(*desc.EnumValueDescriptor); !ok || !p.InnerCompact {
+					p.newLine(w)
+				}
 			}
 
 			childPath := append(path, el.elementType, int32(el.elementIndex))
